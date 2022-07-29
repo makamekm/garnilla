@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=2]
+[gd_scene load_steps=38 format=2]
 
 [ext_resource path="res://addons/rmsmartshape/shapes/point_array.gd" type="Script" id=1]
 [ext_resource path="res://addons/rmsmartshape/materials/shape_material.gd" type="Script" id=2]
@@ -155,21 +155,99 @@ uniform vec2 resolution = vec2(640.0, 480.0); // Set the number of rows and colu
 
 uniform int pixelSize = 4;
 
+const vec4 background = vec4(1., 1., 1., 0.);
+
+float dist(vec4 c1, vec4 c2) {
+	return (c1 == c2) ? 0.0 : abs(c1.r - c2.r) + abs(c1.g - c2.g) + abs(c1.b - c2.b);
+}
+
+bool similar(vec4 c1, vec4 c2, vec4 input) {
+	return (c1 == c2 || (dist(c1, c2) <= dist(input, c2) && dist(c1, c2) <= dist(input, c1)));
+}
+
+bool different(vec4 c1, vec4 c2, vec4 input) {
+	return !similar(c1, c2, input);
+}
+
+
+// rotsprite 2x enlargement algorithm:
+// suppose we are looking at input pixel cE which is surrounded by 8 other 
+// pixels:
+//  cA cB cC
+//  cD cE cF
+//  cG cH cI
+// and for that 1 input pixel cE we want to output 4 pixels oA, oB, oC, and oD:
+//  oA oB
+//  oC oD
+vec4 scale2x(sampler2D tex, vec2 uv, vec2 pixel_size) {
+	vec4 input = texture(tex, uv);
+
+	vec4 cD = texture(tex, uv + pixel_size * vec2(-1., .0));
+	cD.a = 1.0;
+	vec4 cF = texture(tex, uv + pixel_size * vec2(1., .0));
+	cF.a = 1.0;
+	vec4 cH = texture(tex, uv + pixel_size * vec2(.0, 1.));
+	cH.a = 1.0;
+	vec4 cB = texture(tex, uv + pixel_size * vec2(.0, -1.));
+	cB.a = 1.0;
+	vec4 cA = texture(tex, uv + pixel_size * vec2(-1., -1.));
+	cA.a = 1.0;
+	vec4 cI = texture(tex, uv + pixel_size * vec2(1., 1.));
+	cI.a = 1.0;
+	vec4 cG = texture(tex, uv + pixel_size * vec2(-1., 1.));
+	cG.a = 1.0;
+	vec4 cC = texture(tex, uv + pixel_size * vec2(1., -1.));
+	cC.a = 1.0;
+
+	if (different(cD,cF, input)
+     && different(cH,cB, input)
+     && ((similar(input, cD, input) || similar(input, cH, input) || similar(input, cF, input) || similar(input, cB, input) ||
+         ((different(cA, cI, input) || similar(input, cG, input) || similar(input, cC, input)) &&
+          (different(cG, cC, input) || similar(input, cA, input) || similar(input, cI, input))))))
+    {
+		vec2 unit = uv - (floor(uv / pixel_size) * pixel_size);
+		vec2 pixel_half_size = pixel_size / 2.0;
+		if (unit.x < pixel_half_size.x && unit.y < pixel_half_size.y) {
+			return ((similar(cB, cD, input) && ((different(input, cA, input) || different(cB, background, input)) && (different(input, cA, input) || different(input, cI, input) || different(cB, cC, input) || different(cD, cG, input)))) ? cB : input);
+		}
+
+		if (unit.x >= pixel_half_size.x && unit.y < pixel_half_size.y) {
+			return ((similar(cF, cB, input) && ((different(input, cC, input) || different(cF, background, input)) && (different(input, cC, input) || different(input, cG, input) || different(cF, cI, input) || different(cB, cA, input)))) ? cF : input);
+		}
+
+		if (unit.x < pixel_half_size.x && unit.y >= pixel_half_size.y) {
+			return ((similar(cD, cH, input) && ((different(input, cG, input) || different(cD, background, input)) && (different(input, cG, input) || different(input, cC, input) || different(cD, cA, input) || different(cH, cI, input)))) ? cD : input);
+		}
+
+        return ((similar(cH, cF, input) && ((different(input, cI, input) || different(cH, background, input)) && (different(input, cI, input) || different(input, cA, input) || different(cH, cG, input) || different(cF, cC, input)))) ? cH : input);
+    }
+
+	return input;
+}
+
 void fragment()
 {
 	float xRes = 1.0 / SCREEN_PIXEL_SIZE.x;
 	float yRes = 1.0 / SCREEN_PIXEL_SIZE.y;
-	
-	xRes = max(resolution.x, xRes);
-	yRes = max(resolution.y, yRes);
 
-	float xFactor = float(xRes) / float(pixelSize);
-	float yFactor = float(yRes) / float(pixelSize);
+	float xAdd = float(xRes) / float(resolution.x);
+	float yAdd = float(yRes) / float(resolution.y);
+	float avrAdd = ceil((xAdd + yAdd) / 2.0);
+	
+	float pixelSizeCorrected = float(pixelSize) * avrAdd;
+
+	float xFactor = xRes / (float(pixelSize) * avrAdd);
+	float yFactor = yRes / (float(pixelSize) * avrAdd);
 
 	float grid_uv_x = round(SCREEN_UV.x * xFactor) / xFactor;
 	float grid_uv_y = round(SCREEN_UV.y * yFactor) / yFactor;
 
 	vec2 pixelated_uv = vec2(grid_uv_x, grid_uv_y);
+
+	vec4 text = texture(SCREEN_TEXTURE, pixelated_uv);
+
+	COLOR = text;
+//	COLOR = scale2x(SCREEN_TEXTURE, pixelated_uv, SCREEN_PIXEL_SIZE);
 
 //	vec4 text;
 //
@@ -177,10 +255,6 @@ void fragment()
 //	text.g = texture(SCREEN_TEXTURE, pixelated_uv).g;
 //	text.b = texture(SCREEN_TEXTURE, pixelated_uv).b;
 //	text.a = 1.0;
-	
-	vec4 text = texture(SCREEN_TEXTURE, pixelated_uv);
-	
-	COLOR = text;
 }"
 
 [sub_resource type="ShaderMaterial" id=59]
@@ -256,6 +330,79 @@ shader_param/bot_color = null
 shader_param/grass_scale = Vector3( 0.1, 0.1, 0.1 )
 shader_param/sway_noise = SubResource( 56 )
 
+[sub_resource type="QuadMesh" id=72]
+size = Vector2( 2, 2 )
+
+[sub_resource type="Shader" id=73]
+code = "//THIS SHADER MUST BE APPLIED TO A QUAD (MeshInstance) WITH A SIZE OF (2, 2)
+//Extra Cull Margin on the quad should be turned up all the way!
+
+shader_type spatial;
+render_mode unshaded;
+
+uniform int outline_mode : hint_range(1, 3, 1) = 3;
+uniform float outline_intensity : hint_range(0, 5) = 1;
+uniform bool _round = false;
+uniform float outline_bias : hint_range(-10, 10) = 0;
+
+uniform vec4 outline_color : hint_color = vec4(0.0, 0.0, 0.0, 1.0);
+
+void vertex() {
+	POSITION = vec4(VERTEX, 1.0);
+}
+
+void fragment() {
+	ALBEDO = outline_color.rgb;
+	
+	vec2 screen_size = vec2(textureSize(SCREEN_TEXTURE, 1));
+	
+	float px = 0.5/screen_size.x;
+	float py = 0.5/screen_size.y;
+	
+	float d = texture(DEPTH_TEXTURE, SCREEN_UV).x;
+	float du = texture(DEPTH_TEXTURE, SCREEN_UV+vec2(0.0, py)).x;
+	float dd = texture(DEPTH_TEXTURE, SCREEN_UV+vec2(0.0, -py)).x;
+	float dr = texture(DEPTH_TEXTURE, SCREEN_UV+vec2(px, 0.0)).x;
+	float dl = texture(DEPTH_TEXTURE, SCREEN_UV+vec2(-px, 0.0)).x;
+	
+	if (outline_mode == 1){
+		ALPHA = 0.0 + abs(abs(d)-abs(du)) + abs(abs(d)-abs(dd)) + abs(abs(d)-abs(dl)) + abs(abs(d)-abs(dr));
+			
+		ALPHA *= 1000.0*outline_intensity;
+	} else if (outline_mode == 2) {
+		ALPHA = 0.0 + abs(abs(abs(d)-abs(du)) - abs(abs(d)-abs(dd))) + abs(abs(abs(d)-abs(dl)) - abs(abs(d)-abs(dr)));
+		
+		ALPHA *= 3.0*50000.0*outline_intensity;
+	} else if (outline_mode == 3) {
+		float dq = texture(DEPTH_TEXTURE, SCREEN_UV+vec2(-px, py)).x;
+		float de = texture(DEPTH_TEXTURE, SCREEN_UV+vec2(px, py)).x;
+		float dz = texture(DEPTH_TEXTURE, SCREEN_UV+vec2(-px, -py)).x;
+		float dc = texture(DEPTH_TEXTURE, SCREEN_UV+vec2(px, -py)).x;
+		
+		ALPHA = 0.0 + abs(abs(abs(d)-abs(du)) - abs(abs(d)-abs(dd))) + abs(abs(abs(d)-abs(dl)) - abs(abs(d)-abs(dr))) + abs(abs(abs(d)-abs(dq)) - abs(abs(d)-abs(dc))) + abs(abs(abs(d)-abs(dz)) - abs(abs(d)-abs(de)));
+
+		ALPHA *= 50000.0*outline_intensity;
+	}
+	
+	ALPHA += outline_bias;
+	
+	if (_round) {
+		ALPHA = round(ALPHA);
+	}
+	
+	ALPHA *= outline_color.a;
+	
+	ALPHA = clamp(ALPHA, 0.0, 1.0);
+}"
+
+[sub_resource type="ShaderMaterial" id=74]
+shader = SubResource( 73 )
+shader_param/outline_mode = 3
+shader_param/outline_intensity = 5.0
+shader_param/_round = true
+shader_param/outline_bias = 0.0
+shader_param/outline_color = Color( 0, 0, 0, 0.490196 )
+
 [node name="Spatial" type="Spatial"]
 
 [node name="Sprite3D" type="Sprite3D" parent="."]
@@ -302,3 +449,10 @@ polygon = PoolVector2Array( -24.1243, -24.5011, -11.0723, 20.3506, 10.619, 20.07
 material = SubResource( 55 )
 
 [node name="CSGBox" type="CSGBox" parent="."]
+
+[node name="CSGBox2" type="CSGBox" parent="."]
+transform = Transform( 0.772658, -0.179197, 0.609005, 0.140736, 0.983813, 0.110928, -0.619025, 0, 0.785371, 0, 0, -3.96272 )
+
+[node name="MeshInstance2" type="MeshInstance" parent="."]
+mesh = SubResource( 72 )
+material/0 = SubResource( 74 )
