@@ -148,7 +148,7 @@ fill_texture_show_behind_parent = false
 fill_mesh_offset = 0.0
 render_offset = 0.0
 
-[sub_resource type="Shader" id=60]
+[sub_resource type="Shader" id=86]
 code = "shader_type canvas_item;
 
 uniform vec2 resolution = vec2(640.0, 480.0); // Set the number of rows and columns the texture will be divided in. Scanlines and grille will make a square based on these values
@@ -258,9 +258,9 @@ void fragment()
 //	text.a = 1.0;
 }"
 
-[sub_resource type="ShaderMaterial" id=59]
-shader = SubResource( 60 )
-shader_param/resolution = Vector2( 1920, 1080 )
+[sub_resource type="ShaderMaterial" id=87]
+shader = SubResource( 86 )
+shader_param/resolution = Vector2( 640, 480 )
 shader_param/pixelSize = 4
 
 [sub_resource type="Shader" id=54]
@@ -439,7 +439,7 @@ current = true
 [node name="CanvasLayer" type="CanvasLayer" parent="Camera"]
 
 [node name="ColorRect" type="ColorRect" parent="Camera/CanvasLayer"]
-material = SubResource( 59 )
+material = SubResource( 87 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 rect_clip_content = true
