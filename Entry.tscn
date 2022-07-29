@@ -1,0 +1,304 @@
+[gd_scene load_steps=35 format=2]
+
+[ext_resource path="res://addons/rmsmartshape/shapes/point_array.gd" type="Script" id=1]
+[ext_resource path="res://addons/rmsmartshape/materials/shape_material.gd" type="Script" id=2]
+[ext_resource path="res://addons/rmsmartshape/shapes/point.gd" type="Script" id=3]
+[ext_resource path="res://addons/rmsmartshape/vertex_properties.gd" type="Script" id=4]
+[ext_resource path="res://addons/rmsmartshape/shapes/shape_closed.gd" type="Script" id=5]
+[ext_resource path="res://assets/ground.png" type="Texture" id=6]
+[ext_resource path="res://assets/edge.png" type="Texture" id=7]
+[ext_resource path="res://addons/rmsmartshape/materials/edge_material.gd" type="Script" id=8]
+[ext_resource path="res://addons/rmsmartshape/normal_range.gd" type="Script" id=9]
+[ext_resource path="res://addons/rmsmartshape/materials/edge_material_metadata.gd" type="Script" id=10]
+
+[sub_resource type="QuadMesh" id=13]
+size = Vector2( 8.9, 5 )
+
+[sub_resource type="ViewportTexture" id=14]
+viewport_path = NodePath("MeshInstance/Viewport")
+
+[sub_resource type="SpatialMaterial" id=15]
+resource_local_to_scene = true
+flags_transparent = true
+flags_unshaded = true
+albedo_texture = SubResource( 14 )
+
+[sub_resource type="Resource" id=61]
+script = ExtResource( 4 )
+texture_idx = 0
+flip = false
+width = 1.0
+
+[sub_resource type="Resource" id=62]
+script = ExtResource( 3 )
+position = Vector2( 597.805, 191.152 )
+point_in = Vector2( -33.373, -32.2286 )
+point_out = Vector2( 33.373, 32.2286 )
+properties = SubResource( 61 )
+
+[sub_resource type="Resource" id=63]
+script = ExtResource( 4 )
+texture_idx = 0
+flip = false
+width = 1.0
+
+[sub_resource type="Resource" id=64]
+script = ExtResource( 3 )
+position = Vector2( 333.792, 478.335 )
+point_in = Vector2( 37.2108, 33.3775 )
+point_out = Vector2( -37.2108, -33.3775 )
+properties = SubResource( 63 )
+
+[sub_resource type="Resource" id=65]
+script = ExtResource( 4 )
+texture_idx = 0
+flip = false
+width = 1.0
+
+[sub_resource type="Resource" id=66]
+script = ExtResource( 3 )
+position = Vector2( 602.639, 476.811 )
+point_in = Vector2( 31.5481, -35.4282 )
+point_out = Vector2( -31.5481, 35.4282 )
+properties = SubResource( 65 )
+
+[sub_resource type="Resource" id=67]
+script = ExtResource( 4 )
+texture_idx = 0
+flip = false
+width = 1.0
+
+[sub_resource type="Resource" id=68]
+script = ExtResource( 3 )
+position = Vector2( 597.805, 191.152 )
+point_in = Vector2( -33.373, -32.2286 )
+point_out = Vector2( 33.373, 32.2286 )
+properties = SubResource( 67 )
+
+[sub_resource type="Resource" id=69]
+script = ExtResource( 4 )
+texture_idx = 0
+flip = false
+width = 1.0
+
+[sub_resource type="Resource" id=70]
+script = ExtResource( 3 )
+position = Vector2( 332.016, 192.576 )
+point_in = Vector2( -32.5898, 35.0366 )
+point_out = Vector2( 32.5898, -35.0366 )
+properties = SubResource( 69 )
+
+[sub_resource type="Resource" id=71]
+script = ExtResource( 1 )
+_points = {
+0: SubResource( 62 ),
+1: SubResource( 64 ),
+2: SubResource( 66 ),
+3: SubResource( 68 ),
+4: SubResource( 70 )
+}
+_point_order = [ 3, 2, 1, 4, 0 ]
+_constraints = {
+[ 0, 3 ]: 15
+}
+_next_key = 4
+_material_overrides = {
+}
+
+[sub_resource type="Resource" id=40]
+script = ExtResource( 8 )
+textures = [ ExtResource( 7 ) ]
+texture_normals = [  ]
+textures_corner_outer = [  ]
+textures_corner_inner = [  ]
+texture_normals_corner_outer = [  ]
+texture_normals_corner_inner = [  ]
+textures_taper_left = [  ]
+textures_taper_right = [  ]
+texture_normals_taper_left = [  ]
+texture_normals_taper_right = [  ]
+randomize_texture = false
+use_corner_texture = true
+use_taper_texture = true
+fit_mode = 0
+
+[sub_resource type="Resource" id=41]
+script = ExtResource( 9 )
+begin = 0.0
+distance = 360.0
+edgeRendering = Vector2( 0, 0 )
+
+[sub_resource type="Resource" id=42]
+script = ExtResource( 10 )
+edge_material = SubResource( 40 )
+normal_range = SubResource( 41 )
+weld = true
+render = true
+z_index = 0
+z_as_relative = true
+offset = 1.0
+
+[sub_resource type="Resource" id=12]
+script = ExtResource( 2 )
+_edge_meta_materials = [ SubResource( 42 ) ]
+fill_textures = [ ExtResource( 6 ) ]
+fill_texture_normals = [  ]
+fill_texture_z_index = -10
+fill_texture_show_behind_parent = false
+fill_mesh_offset = 0.0
+render_offset = 0.0
+
+[sub_resource type="Shader" id=60]
+code = "shader_type canvas_item;
+
+uniform vec2 resolution = vec2(640.0, 480.0); // Set the number of rows and columns the texture will be divided in. Scanlines and grille will make a square based on these values
+
+uniform int pixelSize = 4;
+
+void fragment()
+{
+	float xRes = 1.0 / SCREEN_PIXEL_SIZE.x;
+	float yRes = 1.0 / SCREEN_PIXEL_SIZE.y;
+	
+	xRes = max(resolution.x, xRes);
+	yRes = max(resolution.y, yRes);
+
+	float xFactor = float(xRes) / float(pixelSize);
+	float yFactor = float(yRes) / float(pixelSize);
+
+	float grid_uv_x = round(SCREEN_UV.x * xFactor) / xFactor;
+	float grid_uv_y = round(SCREEN_UV.y * yFactor) / yFactor;
+
+	vec2 pixelated_uv = vec2(grid_uv_x, grid_uv_y);
+
+//	vec4 text;
+//
+//	text.r = texture(SCREEN_TEXTURE, pixelated_uv).r;
+//	text.g = texture(SCREEN_TEXTURE, pixelated_uv).g;
+//	text.b = texture(SCREEN_TEXTURE, pixelated_uv).b;
+//	text.a = 1.0;
+	
+	vec4 text = texture(SCREEN_TEXTURE, pixelated_uv);
+	
+	COLOR = text;
+}"
+
+[sub_resource type="ShaderMaterial" id=59]
+shader = SubResource( 60 )
+shader_param/resolution = Vector2( 1920, 1080 )
+shader_param/pixelSize = 4
+
+[sub_resource type="Shader" id=54]
+code = "shader_type spatial;
+render_mode cull_disabled;
+
+uniform float sway = 1.14;
+uniform float sway_ = 0.34;
+uniform float sway_pow = 1.3;
+uniform float grass_roughness = 0.3;
+uniform float sway_noise_sampeling_scale = 0.12;
+uniform float sway_time_scale = 0.2;
+uniform vec3 sway_dir = vec3(1.0,0.0,1.0);
+uniform sampler2D sway_noise; //noise with with and height 1000
+uniform float color_scale = 0.3;
+uniform float color_grad_height = -0.5;
+uniform vec4 top_color : hint_color;
+uniform vec4 bot_color : hint_color;
+uniform vec3 grass_scale = vec3(1.0,1.0,1.0);
+
+varying vec3 vert;
+varying float curent_wind;
+
+float sclamp(float f,float sc){
+	return clamp(((f-0.5)*sc)+0.5,0.0,1.0);
+}
+
+void fragment()
+{
+	ALBEDO = mix(bot_color,top_color,(vert.y+color_grad_height)*color_scale).xyz;
+	NORMAL *= FRONT_FACING ? 1.0 : -1.0;
+	SPECULAR = 0.5;
+	ROUGHNESS = clamp(1.0-(sclamp(curent_wind,0.8)*grass_roughness),0.2,1);
+}
+
+void vertex()
+{
+	VERTEX *= grass_scale;
+	vert = VERTEX;
+	NORMAL = vec3(0.0,1.0,0.0);
+	vec4 sway_dir_local = vec4(sway_dir,0.0) * WORLD_MATRIX;
+	vec3 world_vertex = (WORLD_MATRIX * vec4(VERTEX,1.0)).xyz;
+	curent_wind = texture(sway_noise,normalize(sway_dir.xz) * (-TIME*sway_time_scale) + world_vertex.xz*vec2(sway_noise_sampeling_scale)).x;
+	VERTEX += normalize(sway_dir_local.xyz) * sway * (VERTEX.y) *  sclamp(curent_wind,1.5);
+	VERTEX.y -= sway_*abs(pow(VERTEX.x,sway_pow));
+	
+}"
+
+[sub_resource type="OpenSimplexNoise" id=57]
+
+[sub_resource type="NoiseTexture" id=56]
+seamless = true
+noise = SubResource( 57 )
+
+[sub_resource type="ShaderMaterial" id=55]
+shader = SubResource( 54 )
+shader_param/sway = 1.14
+shader_param/sway_ = 0.34
+shader_param/sway_pow = 1.3
+shader_param/grass_roughness = 0.3
+shader_param/sway_noise_sampeling_scale = 0.12
+shader_param/sway_time_scale = 0.2
+shader_param/sway_dir = Vector3( 1, 0, 1 )
+shader_param/color_scale = 0.3
+shader_param/color_grad_height = -0.5
+shader_param/top_color = null
+shader_param/bot_color = null
+shader_param/grass_scale = Vector3( 0.1, 0.1, 0.1 )
+shader_param/sway_noise = SubResource( 56 )
+
+[node name="Spatial" type="Spatial"]
+
+[node name="Sprite3D" type="Sprite3D" parent="."]
+
+[node name="MeshInstance" type="MeshInstance" parent="."]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0 )
+mesh = SubResource( 13 )
+material/0 = SubResource( 15 )
+
+[node name="Viewport" type="Viewport" parent="MeshInstance"]
+size = Vector2( 1920, 1080 )
+transparent_bg = true
+usage = 0
+render_target_v_flip = true
+
+[node name="SS2D_Shape_Closed" type="Node2D" parent="MeshInstance/Viewport"]
+script = ExtResource( 5 )
+_points = SubResource( 71 )
+material_overrides = null
+shape_material = SubResource( 12 )
+tessellation_stages = 5
+tessellation_tolerence = 4.0
+flip_edges = false
+render_edges = true
+collision_size = 32.0
+collision_offset = 0.0
+collision_polygon_node_path = NodePath("")
+
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( 1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 10.5326, 8.95778 )
+current = true
+
+[node name="CanvasLayer" type="CanvasLayer" parent="Camera"]
+
+[node name="ColorRect" type="ColorRect" parent="Camera/CanvasLayer"]
+material = SubResource( 59 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+rect_clip_content = true
+
+[node name="CSGPolygon" type="CSGPolygon" parent="."]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 3.09744, 0 )
+polygon = PoolVector2Array( -24.1243, -24.5011, -11.0723, 20.3506, 10.619, 20.0753, 13.45, -18.8859 )
+material = SubResource( 55 )
+
+[node name="CSGBox" type="CSGBox" parent="."]
