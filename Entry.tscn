@@ -211,6 +211,7 @@ vec4 scale2x(sampler2D tex, vec2 uv, vec2 pixel_size) {
 			return ((similar(cB, cD, input) && ((different(input, cA, input) || different(cB, background, input)) && (different(input, cA, input) || different(input, cI, input) || different(cB, cC, input) || different(cD, cG, input)))) ? cB : input);
 		}
 
+
 		if (unit.x >= pixel_half_size.x && unit.y < pixel_half_size.y) {
 			return ((similar(cF, cB, input) && ((different(input, cC, input) || different(cF, background, input)) && (different(input, cC, input) || different(input, cG, input) || different(cF, cI, input) || different(cB, cA, input)))) ? cF : input);
 		}
