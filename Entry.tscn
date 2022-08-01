@@ -1,4 +1,4 @@
-[gd_scene load_steps=38 format=2]
+[gd_scene load_steps=41 format=2]
 
 [ext_resource path="res://addons/rmsmartshape/shapes/point_array.gd" type="Script" id=1]
 [ext_resource path="res://addons/rmsmartshape/materials/shape_material.gd" type="Script" id=2]
@@ -10,6 +10,7 @@
 [ext_resource path="res://addons/rmsmartshape/materials/edge_material.gd" type="Script" id=8]
 [ext_resource path="res://addons/rmsmartshape/normal_range.gd" type="Script" id=9]
 [ext_resource path="res://addons/rmsmartshape/materials/edge_material_metadata.gd" type="Script" id=10]
+[ext_resource path="res://rocks.tscn" type="PackedScene" id=11]
 
 [sub_resource type="QuadMesh" id=13]
 size = Vector2( 8.9, 5 )
@@ -23,79 +24,79 @@ flags_transparent = true
 flags_unshaded = true
 albedo_texture = SubResource( 14 )
 
-[sub_resource type="Resource" id=75]
+[sub_resource type="Resource" id=88]
 script = ExtResource( 4 )
 texture_idx = 0
 flip = false
 width = 1.0
 
-[sub_resource type="Resource" id=76]
+[sub_resource type="Resource" id=89]
 script = ExtResource( 3 )
 position = Vector2( 597.805, 191.152 )
 point_in = Vector2( -33.373, -32.2286 )
 point_out = Vector2( 33.373, 32.2286 )
-properties = SubResource( 75 )
+properties = SubResource( 88 )
 
-[sub_resource type="Resource" id=77]
+[sub_resource type="Resource" id=90]
 script = ExtResource( 4 )
 texture_idx = 0
 flip = false
 width = 1.0
 
-[sub_resource type="Resource" id=78]
+[sub_resource type="Resource" id=91]
 script = ExtResource( 3 )
 position = Vector2( 333.792, 478.335 )
 point_in = Vector2( 37.2108, 33.3775 )
 point_out = Vector2( -37.2108, -33.3775 )
-properties = SubResource( 77 )
+properties = SubResource( 90 )
 
-[sub_resource type="Resource" id=79]
+[sub_resource type="Resource" id=92]
 script = ExtResource( 4 )
 texture_idx = 0
 flip = false
 width = 1.0
 
-[sub_resource type="Resource" id=80]
+[sub_resource type="Resource" id=93]
 script = ExtResource( 3 )
 position = Vector2( 602.639, 476.811 )
 point_in = Vector2( 31.5481, -35.4282 )
 point_out = Vector2( -31.5481, 35.4282 )
-properties = SubResource( 79 )
+properties = SubResource( 92 )
 
-[sub_resource type="Resource" id=81]
+[sub_resource type="Resource" id=94]
 script = ExtResource( 4 )
 texture_idx = 0
 flip = false
 width = 1.0
 
-[sub_resource type="Resource" id=82]
+[sub_resource type="Resource" id=95]
 script = ExtResource( 3 )
 position = Vector2( 597.805, 191.152 )
 point_in = Vector2( -33.373, -32.2286 )
 point_out = Vector2( 33.373, 32.2286 )
-properties = SubResource( 81 )
+properties = SubResource( 94 )
 
-[sub_resource type="Resource" id=83]
+[sub_resource type="Resource" id=96]
 script = ExtResource( 4 )
 texture_idx = 0
 flip = false
 width = 1.0
 
-[sub_resource type="Resource" id=84]
+[sub_resource type="Resource" id=97]
 script = ExtResource( 3 )
 position = Vector2( 332.016, 192.576 )
 point_in = Vector2( -32.5898, 35.0366 )
 point_out = Vector2( 32.5898, -35.0366 )
-properties = SubResource( 83 )
+properties = SubResource( 96 )
 
-[sub_resource type="Resource" id=85]
+[sub_resource type="Resource" id=98]
 script = ExtResource( 1 )
 _points = {
-0: SubResource( 76 ),
-1: SubResource( 78 ),
-2: SubResource( 80 ),
-3: SubResource( 82 ),
-4: SubResource( 84 )
+0: SubResource( 89 ),
+1: SubResource( 91 ),
+2: SubResource( 93 ),
+3: SubResource( 95 ),
+4: SubResource( 97 )
 }
 _point_order = [ 3, 2, 1, 4, 0 ]
 _constraints = {
@@ -151,7 +152,7 @@ render_offset = 0.0
 [sub_resource type="Shader" id=86]
 code = "shader_type canvas_item;
 
-uniform vec2 resolution = vec2(640.0, 480.0); // Set the number of rows and columns the texture will be divided in. Scanlines and grille will make a square based on these values
+//uniform vec2 resolution = vec2(640.0, 480.0); // Set the number of rows and columns the texture will be divided in. Scanlines and grille will make a square based on these values
 
 uniform int pixelSize = 4;
 
@@ -168,7 +169,6 @@ bool similar(vec4 c1, vec4 c2, vec4 input) {
 bool different(vec4 c1, vec4 c2, vec4 input) {
 	return !similar(c1, c2, input);
 }
-
 
 // rotsprite 2x enlargement algorithm:
 // suppose we are looking at input pixel cE which is surrounded by 8 other 
@@ -230,15 +230,19 @@ void fragment()
 {
 	float xRes = 1.0 / SCREEN_PIXEL_SIZE.x;
 	float yRes = 1.0 / SCREEN_PIXEL_SIZE.y;
-
-	float xAdd = float(xRes) / float(resolution.x);
-	float yAdd = float(yRes) / float(resolution.y);
-	float avrAdd = ceil((xAdd + yAdd) / 2.0);
 	
-	float pixelSizeCorrected = float(pixelSize) * avrAdd;
+//	xRes = max(xRes, resolution.x);
+//	yRes = max(yRes, resolution.y);
 
-	float xFactor = xRes / (float(pixelSize) * avrAdd);
-	float yFactor = yRes / (float(pixelSize) * avrAdd);
+//	float xAdd = float(xRes) / float(resolution.x);
+//	float yAdd = float(yRes) / float(resolution.y);
+//	float avrAdd = ceil((xAdd + yAdd) / 2.0);
+
+//	float xFactor = xRes / (float(pixelSize) * avrAdd) * 1.0;
+//	float yFactor = yRes / (float(pixelSize) * avrAdd) * 1.0;
+
+	float xFactor = xRes / (float(pixelSize));
+	float yFactor = yRes / (float(pixelSize));
 
 	float grid_uv_x = round(SCREEN_UV.x * xFactor) / xFactor;
 	float grid_uv_y = round(SCREEN_UV.y * yFactor) / yFactor;
@@ -247,8 +251,8 @@ void fragment()
 
 	vec4 text = texture(SCREEN_TEXTURE, pixelated_uv);
 
-	COLOR = text;
-//	COLOR = scale2x(SCREEN_TEXTURE, pixelated_uv, SCREEN_PIXEL_SIZE);
+//	COLOR = text;
+	COLOR = scale2x(SCREEN_TEXTURE, pixelated_uv, SCREEN_PIXEL_SIZE);
 
 //	vec4 text;
 //
@@ -260,7 +264,6 @@ void fragment()
 
 [sub_resource type="ShaderMaterial" id=87]
 shader = SubResource( 86 )
-shader_param/resolution = Vector2( 640, 480 )
 shader_param/pixelSize = 4
 
 [sub_resource type="Shader" id=54]
@@ -331,6 +334,12 @@ shader_param/bot_color = null
 shader_param/grass_scale = Vector3( 0.1, 0.1, 0.1 )
 shader_param/sway_noise = SubResource( 56 )
 
+[sub_resource type="PlaneMesh" id=99]
+size = Vector2( 1000, 1000 )
+
+[sub_resource type="SpatialMaterial" id=100]
+albedo_color = Color( 0.54902, 0.772549, 0.52549, 1 )
+
 [sub_resource type="QuadMesh" id=72]
 size = Vector2( 2, 2 )
 
@@ -339,77 +348,240 @@ code = "//THIS SHADER MUST BE APPLIED TO A QUAD (MeshInstance) WITH A SIZE OF (2
 //Extra Cull Margin on the quad should be turned up all the way!
 
 shader_type spatial;
-render_mode unshaded;
+render_mode unshaded, depth_test_disable;
 
-uniform int outline_mode : hint_range(1, 3, 1) = 3;
-uniform float outline_intensity : hint_range(0, 5) = 1;
-uniform bool _round = false;
-uniform float outline_bias : hint_range(-10, 10) = 0;
+uniform int pixel_size = 2;
+//uniform float pixel_uv_intensity : hint_range(0, 10, 0.05) = 0.75;
+//uniform float outline_intensity : hint_range(0, 5) = 1;
+//uniform float outline_bias : hint_range(-10, 10) = 0;
+//uniform vec4 outline_color : hint_color = vec4(0.0, 0.0, 0.0, 1.0);
 
-uniform vec4 outline_color : hint_color = vec4(0.0, 0.0, 0.0, 1.0);
+const vec3 MONOCHROME_SCALE = vec3(0.298912, 0.586611, 0.114478);
+
+uniform float luma_coef : hint_range(0, 1, 0.01) = 0.1;
+uniform float color_coef : hint_range(0, 1, 0.01) = 0.1;
+uniform float depth_coef : hint_range(0, 1, 0.01) = 0.8;
+uniform float cutoff : hint_range(0, 1, 0.01) = 0.2;
+
+//uniform vec4 edge_color : hint_color = vec4(0.0, 0.0, 0.0, 1.0);
+//uniform float threshold = 0.0;
+//uniform float blend = 0.01;
+//uniform bool enable_depth_pass = true;
+//uniform float threshold_depth = 0.0;
+//uniform float blend_depth = 0.01;
+//uniform float distance_fade_length = 50.0;
+//uniform float distance_fade_blend = 20.0;
+
+
+//void vertex(){
+//	VERTEX *= 2.0;
+//	POSITION = vec4(VERTEX, 1.0);
+//}
+
+float getGrayScale(sampler2D sampler, vec2 coods) {
+	vec4 color = texture(sampler,coods);
+	float gray = (color.r + color.g + color.b)/3.0;
+	return gray;
+}
+
+float get_linear_depth(sampler2D sampler, vec2 coords, mat4 ipm) {
+	float depth = texture(sampler, coords).r;
+	vec3 ndc = vec3(coords, depth) * 2.0 - 1.0;
+	vec4 view = ipm * vec4(ndc, 1.0);
+	view.xyz /= view.w;
+	float linear_depth = -view.z;
+	return linear_depth;
+}
 
 void vertex() {
 	POSITION = vec4(VERTEX, 1.0);
 }
 
-void fragment() {
-	ALBEDO = outline_color.rgb;
-	
-	vec2 screen_size = vec2(textureSize(SCREEN_TEXTURE, 1));
-	
-	float px = 0.5/screen_size.x;
-	float py = 0.5/screen_size.y;
-	
-	float d = texture(DEPTH_TEXTURE, SCREEN_UV).x;
-	float du = texture(DEPTH_TEXTURE, SCREEN_UV+vec2(0.0, py)).x;
-	float dd = texture(DEPTH_TEXTURE, SCREEN_UV+vec2(0.0, -py)).x;
-	float dr = texture(DEPTH_TEXTURE, SCREEN_UV+vec2(px, 0.0)).x;
-	float dl = texture(DEPTH_TEXTURE, SCREEN_UV+vec2(-px, 0.0)).x;
-	
-	if (outline_mode == 1){
-		ALPHA = 0.0 + abs(abs(d)-abs(du)) + abs(abs(d)-abs(dd)) + abs(abs(d)-abs(dl)) + abs(abs(d)-abs(dr));
-			
-		ALPHA *= 1000.0*outline_intensity;
-	} else if (outline_mode == 2) {
-		ALPHA = 0.0 + abs(abs(abs(d)-abs(du)) - abs(abs(d)-abs(dd))) + abs(abs(abs(d)-abs(dl)) - abs(abs(d)-abs(dr)));
-		
-		ALPHA *= 3.0*50000.0*outline_intensity;
-	} else if (outline_mode == 3) {
-		float dq = texture(DEPTH_TEXTURE, SCREEN_UV+vec2(-px, py)).x;
-		float de = texture(DEPTH_TEXTURE, SCREEN_UV+vec2(px, py)).x;
-		float dz = texture(DEPTH_TEXTURE, SCREEN_UV+vec2(-px, -py)).x;
-		float dc = texture(DEPTH_TEXTURE, SCREEN_UV+vec2(px, -py)).x;
-		
-		ALPHA = 0.0 + abs(abs(abs(d)-abs(du)) - abs(abs(d)-abs(dd))) + abs(abs(abs(d)-abs(dl)) - abs(abs(d)-abs(dr))) + abs(abs(abs(d)-abs(dq)) - abs(abs(d)-abs(dc))) + abs(abs(abs(d)-abs(dz)) - abs(abs(d)-abs(de)));
+float gaussian3x3(sampler2D tex, vec2 uv, vec2 pixelsize)
+{
+	float p = 0.0;
+	float coef[9] = {
+		0.0625, 0.125, 0.0625,
+		0.125, 0.25, 0.125,
+		0.0625, 0.125, 0.0625
+	};
 
-		ALPHA *= 50000.0*outline_intensity;
+	for (int y=-1; y<=1; y++ ) {
+		for (int x=-1; x<=1; x ++ ) {
+			p += textureLod( tex, uv + vec2( float( x ), float( y ) ) * pixelsize, 0.0 ).r * coef[(y+1)*3 + (x+1)];
+		}
 	}
+
+	return p;
+}
+
+void fragment() {
+	vec2 screen_size = vec2(textureSize(SCREEN_TEXTURE, 1));
+
+	float x_factor = screen_size.x / (float(pixel_size));
+	float y_factor = screen_size.y / (float(pixel_size));
+
+	float grid_uv_x = round(SCREEN_UV.x * x_factor) / x_factor;
+	float grid_uv_y = round(SCREEN_UV.y * y_factor) / y_factor;
+
+	vec2 pixelated_uv = vec2(grid_uv_x, grid_uv_y);
 	
-	ALPHA += outline_bias;
 	
-	if (_round) {
-		ALPHA = round(ALPHA);
+//	vec2 delta = vec2(0.0,0.003);
+//	vec2 SCREEN_PIXEL_SIZE = 1.0 / VIEWPORT_SIZE;
+//	vec2 iResolution = VIEWPORT_SIZE;
+//	float m = max(iResolution.x,iResolution.y);
+//	vec2 texCoords = SCREEN_UV;
+//
+//	vec3 screen_color = texture(SCREEN_TEXTURE, SCREEN_UV).rgb;
+//
+//	float c1y = getGrayScale(SCREEN_TEXTURE, texCoords.xy-delta/2.0);
+//	float c2y = getGrayScale(SCREEN_TEXTURE, texCoords.xy+delta/2.0);
+//	float c1x = getGrayScale(SCREEN_TEXTURE, texCoords.xy-delta.yx/2.0);
+//	float c2x = getGrayScale(SCREEN_TEXTURE, texCoords.xy+delta.yx/2.0);
+//	float dcdx = (c2x - c1x)/(delta.y*10.0);
+//	float dcdy = (c2y - c1y)/(delta.y*10.0);
+//
+//	vec2 dcdi = vec2(dcdx,dcdy);
+//	float edge = length(dcdi)/10.0;
+//	edge = 1.0 - edge;
+//	edge = smoothstep(threshold, threshold + blend, edge);
+//	float final_edge = edge;
+//
+//	// Depth-Pass
+//	if (enable_depth_pass) {
+//		c1y = get_linear_depth(DEPTH_TEXTURE, texCoords.xy-delta/2.0, INV_PROJECTION_MATRIX);
+//		c2y = get_linear_depth(DEPTH_TEXTURE, texCoords.xy+delta/2.0, INV_PROJECTION_MATRIX);
+//		c1x = get_linear_depth(DEPTH_TEXTURE, texCoords.xy-delta.yx/2.0, INV_PROJECTION_MATRIX);
+//		c2x = get_linear_depth(DEPTH_TEXTURE, texCoords.xy+delta.yx/2.0, INV_PROJECTION_MATRIX);
+//		dcdx = (c2x - c1x)/(delta.y*10.0);
+//		dcdy = (c2y - c1y)/(delta.y*10.0);
+//		dcdi = vec2(dcdx,dcdy);
+//		float depth_edge = length(dcdi)/10.0;
+//		depth_edge = 1.0 - depth_edge;
+//		depth_edge = smoothstep(threshold_depth, threshold_depth + blend_depth, depth_edge);
+//		final_edge *= depth_edge;
+//	}
+//
+//	// Distance Fading
+//	float linear_depth = get_linear_depth(DEPTH_TEXTURE, SCREEN_UV, INV_PROJECTION_MATRIX);
+//	float df = 1.0 - smoothstep(distance_fade_length, distance_fade_length + distance_fade_blend, linear_depth);
+//	final_edge = (1.0 - final_edge) * df;
+//	final_edge = 1.0 - final_edge;
+//
+//	ALBEDO = mix(edge_color.rgb, screen_color.rgb, final_edge);
+	
+	
+//	float px = pixel_uv_intensity / screen_size.x;
+//	float py = pixel_uv_intensity / screen_size.y;
+//
+//	float d = texture(DEPTH_TEXTURE, pixelated_uv).x;
+//	float du = texture(DEPTH_TEXTURE, pixelated_uv + vec2(0.0, py)).x;
+//	float dd = texture(DEPTH_TEXTURE, pixelated_uv + vec2(0.0, -py)).x;
+//	float dr = texture(DEPTH_TEXTURE, pixelated_uv + vec2(px, 0.0)).x;
+//	float dl = texture(DEPTH_TEXTURE, pixelated_uv + vec2(-px, 0.0)).x;
+//
+//	float dq = texture(DEPTH_TEXTURE, pixelated_uv + vec2(-px, py)).x;
+//	float de = texture(DEPTH_TEXTURE, pixelated_uv + vec2(px, py)).x;
+//	float dz = texture(DEPTH_TEXTURE, pixelated_uv + vec2(-px, -py)).x;
+//	float dc = texture(DEPTH_TEXTURE, pixelated_uv + vec2(px, -py)).x;
+//
+//
+//	float alpha_outline = 0.0 + abs(abs(abs(d) - abs(du)) - abs(abs(d) - abs(dd))) + abs(abs(abs(d) - abs(dl)) - abs(abs(d) - abs(dr)));
+//
+//	alpha_outline *= 3.0 * 50000.0 * outline_intensity;
+//
+////	float alpha_outline = 0.0 + abs(abs(abs(d) - abs(du)) - abs(abs(d) - abs(dd))) + abs(abs(abs(d) - abs(dl)) - abs(abs(d) - abs(dr))) + abs(abs(abs(d) - abs(dq)) - abs(abs(d) - abs(dc))) + abs(abs(abs(d) - abs(dz)) - abs(abs(d) - abs(de)));
+////
+////	alpha_outline *= 50000.0 * outline_intensity;
+
+	vec4 text = texture(SCREEN_TEXTURE, pixelated_uv);
+//	vec4 text = texture(SCREEN_TEXTURE, SCREEN_UV);
+
+	vec3 color[9];
+	float depth[9];
+	vec2 pixelsize = ( vec2( 1.0, 1.0 ) / VIEWPORT_SIZE ) * 1.15;
+
+	// Gaussian FilterとSobel FilterでColor/Depthで取る
+	for( int y=0; y<3; y ++ ) {
+		for( int x=0; x<3; x ++ ) {
+			vec2 uv = pixelated_uv + vec2( float( x-1 ), float( y-1 ) ) * pixelsize;
+			vec4 ndc = vec4( uv, gaussian3x3( DEPTH_TEXTURE, uv, pixelsize ), 1.0 ) * 2.0 - 1.0;
+			vec4 screen_pixel_coord = INV_PROJECTION_MATRIX * ndc;
+
+			color[y*3+x] = textureLod( SCREEN_TEXTURE, uv, 0.0 ).rgb;
+			depth[y*3+x] = -( screen_pixel_coord.z / screen_pixel_coord.w );
+		}
 	}
+
+	vec3 color_sobel_src_x = (
+		color[0] * -1.0
+	+	color[3] * -2.0
+	+	color[6] * -1.0
+	+	color[2] * 1.0
+	+	color[5] * 2.0
+	+	color[8] * 1.0
+	);
+	vec3 color_sobel_src_y = (
+		color[0] * -1.0
+	+	color[1] * -2.0
+	+	color[2] * -1.0
+	+	color[6] * 1.0
+	+	color[7] * 2.0
+	+	color[8] * 1.0
+	);
+	vec3 color_sobel = sqrt( color_sobel_src_x * color_sobel_src_x + color_sobel_src_y * color_sobel_src_y );
+
+	vec2 depth_sobel_src = vec2(
+		(
+			depth[0] * -1.0
+		+	depth[3] * -2.0
+		+	depth[6] * -1.0
+		+	depth[2] * 1.0
+		+	depth[5] * 2.0
+		+	depth[8] * 1.0
+		)
+	,	(
+			depth[0] * -1.0
+		+	depth[1] * -2.0
+		+	depth[2] * -1.0
+		+	depth[6] * 1.0
+		+	depth[7] * 2.0
+		+	depth[8] * 1.0
+		)
+	);
+	float depth_sobel = clamp( sqrt( dot( depth_sobel_src, depth_sobel_src ) ), 0.0, 1.0 );
 	
-	ALPHA *= outline_color.a;
-	
-	ALPHA = clamp(ALPHA, 0.0, 1.0);
+	float alpha_outline = clamp(
+		depth_sobel * depth_coef
+	+	depth_sobel * dot( color_sobel, MONOCHROME_SCALE ) * luma_coef
+	+	depth_sobel * length( color_sobel ) * color_coef
+	-	cutoff
+	,	0.0
+	,	1.0
+	);
+
+	ALBEDO = text.rgb * (1.0 - alpha_outline);
+
+//	ALBEDO = text.rgb;
+//	ALBEDO = text.rgb * (1.0 - alpha_outline * outline_color.a);
 }"
 
 [sub_resource type="ShaderMaterial" id=74]
 shader = SubResource( 73 )
-shader_param/outline_mode = 3
-shader_param/outline_intensity = 5.0
-shader_param/_round = true
-shader_param/outline_bias = 0.0
-shader_param/outline_color = Color( 0, 0, 0, 0.490196 )
+shader_param/pixel_size = 2
+shader_param/luma_coef = 0.1
+shader_param/color_coef = 0.1
+shader_param/depth_coef = 0.8
+shader_param/cutoff = 0.4
 
 [node name="Spatial" type="Spatial"]
 
 [node name="Sprite3D" type="Sprite3D" parent="."]
 
 [node name="MeshInstance" type="MeshInstance" parent="."]
-transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0 )
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.448185, 0 )
+visible = false
 mesh = SubResource( 13 )
 material/0 = SubResource( 15 )
 
@@ -421,7 +593,7 @@ render_target_v_flip = true
 
 [node name="SS2D_Shape_Closed" type="Node2D" parent="MeshInstance/Viewport"]
 script = ExtResource( 5 )
-_points = SubResource( 85 )
+_points = SubResource( 98 )
 material_overrides = null
 shape_material = SubResource( 12 )
 tessellation_stages = 5
@@ -433,27 +605,41 @@ collision_offset = 0.0
 collision_polygon_node_path = NodePath("")
 
 [node name="Camera" type="Camera" parent="."]
-transform = Transform( 1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 10.5326, 8.95778 )
+transform = Transform( 1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 29.4644, 27.1867 )
 current = true
 
 [node name="CanvasLayer" type="CanvasLayer" parent="Camera"]
 
 [node name="ColorRect" type="ColorRect" parent="Camera/CanvasLayer"]
+visible = false
 material = SubResource( 87 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 rect_clip_content = true
 
 [node name="CSGPolygon" type="CSGPolygon" parent="."]
-transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 3.09744, 0 )
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, -0.426607, 1.96217, -0.948191 )
+visible = false
 polygon = PoolVector2Array( -24.1243, -24.5011, -11.0723, 20.3506, 10.619, 20.0753, 13.45, -18.8859 )
 material = SubResource( 55 )
 
 [node name="CSGBox" type="CSGBox" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.04047, 0 )
 
 [node name="CSGBox2" type="CSGBox" parent="."]
-transform = Transform( 0.772658, -0.179197, 0.609005, 0.140736, 0.983813, 0.110928, -0.619025, 0, 0.785371, 0, 0, -3.96272 )
+transform = Transform( 0.772658, -0.179197, 0.609005, 0.140736, 0.983813, 0.110928, -0.619025, 0, 0.785371, 0, 1.04047, -3.96272 )
 
-[node name="MeshInstance2" type="MeshInstance" parent="."]
+[node name="CSGBox3" type="CSGBox" parent="."]
+transform = Transform( 0.772658, -0.179197, 0.609005, 0.140736, 0.983813, 0.110928, -0.619025, 0, 0.785371, -9.41924, 1.04047, -3.96272 )
+
+[node name="rocksSet1" parent="." instance=ExtResource( 11 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -4.40768, 0.173987, 10.0318 )
+
+[node name="MeshInstance3" type="MeshInstance" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.09596, 0, 1.86995 )
+mesh = SubResource( 99 )
+material/0 = SubResource( 100 )
+
+[node name="SS Pixelate Outline" type="MeshInstance" parent="."]
 mesh = SubResource( 72 )
 material/0 = SubResource( 74 )
